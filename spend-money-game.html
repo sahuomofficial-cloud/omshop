@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spend Bill Gates' Money</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .balance {
+            font-size: 3em;
+            font-weight: bold;
+            color: #4ade80;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .product-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .product-price {
+            font-size: 1.5em;
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+            transform: scale(1.05);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: scale(1);
+        }
+
+        .quantity {
+            font-size: 1.3em;
+            font-weight: bold;
+            min-width: 40px;
+            text-align: center;
+            color: #333;
+        }
+
+        .total-spent {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .receipt {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .receipt h3 {
+            margin-bottom: 15px;
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .receipt-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .receipt-total {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #333;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .empty-receipt {
+            color: #999;
+            text-align: center;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .balance {
+                font-size: 2em;
+            }
+            
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 15px;
+            }
+            
+            .receipt {
+                bottom: 10px;
+                right: 10px;
+                max-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 Spend Bill Gates' Money 💰</h1>
+            <div class="balance" id="balance">$100,000,000,000</div>
+            <div class="total-spent">
+                Total Spent: <span id="totalSpent">$0</span>
+            </div>
+        </header>
+
+        <div class="products-grid" id="productsGrid"></div>
+    </div>
+
+    <div class="receipt">
+        <h3>🧾 Receipt</h3>
+        <div id="receiptItems"></div>
+        <div class="receipt-total">
+            Total: <span id="receiptTotal">$0</span>
+        </div>
+    </div>
+
+    <script>
+        const products = [
+            { name: "Big Mac", price: 2, image: "https://images.unsplash.com/photo-1550547660-d9450f859349?w=400" },
+            { name: "Flip Flops", price: 3, image: "https://images.unsplash.com/photo-1603487742131-4160ec999306?w=400" },
+            { name: "Coca-Cola Pack", price: 5, image: "https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400" },
+            { name: "Movie Ticket", price: 12, image: "https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=400" },
+            { name: "Book", price: 15, image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400" },
+            { name: "Lobster Dinner", price: 45, image: "https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=400" },
+            { name: "Video Game", price: 60, image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400" },
+            { name: "Amazon Echo", price: 99, image: "https://images.unsplash.com/photo-1543512214-318c7553f230?w=400" },
+            { name: "Year of Netflix", price: 100, image: "https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=400" },
+            { name: "Air Jordans", price: 125, image: "https://images.unsplash.com/photo-1552346154-21d32810aba3?w=400" },
+            { name: "Airpods", price: 199, image: "https://images.unsplash.com/photo-1606841837239-c5a1a4a07af7?w=400" },
+            { name: "Gaming Console", price: 299, image: "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=400" },
+            { name: "Drone", price: 350, image: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=400" },
+            { name: "Smartphone", price: 699, image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400" },
+            { name: "Bike", price: 800, image: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=400" },
+            { name: "Kitten", price: 1500, image: "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400" },
+            { name: "Puppy", price: 1500, image: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400" },
+            { name: "Auto Rickshaw", price: 2300, image: "https://images.unsplash.com/photo-1581235854256-d4e3e6d2e3d9?w=400" },
+            { name: "Horse", price: 2500, image: "https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=400" },
+            { name: "Acre of Farmland", price: 3000, image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400" },
+            { name: "Designer Handbag", price: 5500, image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400" },
+            { name: "Hot Tub", price: 6000, image: "https://images.unsplash.com/photo-1600428092108-b597cfca5ded?w=400" },
+            { name: "Luxury Wine", price: 7000, image: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400" },
+            { name: "Diamond Ring", price: 10000, image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400" },
+            { name: "Jet Ski", price: 12000, image: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400" },
+            { name: "Rolex", price: 15000, image: "https://images.unsplash.com/photo-1587836374290-4f8e9422c3c8?w=400" },
+            { name: "Ford F-150", price: 30000, image: "https://images.unsplash.com/photo-1562911791-c7a97b729ec5?w=400" },
+            { name: "Tesla", price: 75000, image: "https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=400" },
+            { name: "Monster Truck", price: 150000, image: "https://images.unsplash.com/photo-1615906655593-ad0386982a0f?w=400" },
+            { name: "Ferrari", price: 250000, image: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=400" },
+            { name: "Single Family Home", price: 300000, image: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400" },
+            { name: "Gold Bar", price: 700000, image: "https://images.unsplash.com/photo-1610375461246-83df859d849d?w=400" },
+            { name: "McDonalds Franchise", price: 1500000, image: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=400" },
+            { name: "Superbowl Ad", price: 5250000, image: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=400" },
+            { name: "Yacht", price: 7500000, image: "https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=400" },
+            { name: "M1 Abrams Tank", price: 8000000, image: "https://images.unsplash.com/photo-1526374870839-79d99a5b0c36?w=400" },
+            { name: "Formula 1 Car", price: 15000000, image: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400" },
+            { name: "Apache Helicopter", price: 31000000, image: "https://images.unsplash.com/photo-1516738901171-8eb4fc13bd20?w=400" },
+            { name: "Mansion", price: 45000000, image: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400" },
+            { name: "Make a Movie", price: 100000000, image: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=400" },
+            { name: "Boeing 747", price: 148000000, image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400" },
+            { name: "Mona Lisa", price: 780000000, image: "https://images.unsplash.com/photo-1499781350541-7783f6c6a0c8?w=400" },
+            { name: "Skyscraper", price: 850000000, image: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=400" },
+            { name: "Cruise Ship", price: 930000000, image: "https://images.unsplash.com/photo-1560869713-7d0a29430803?w=400" },
+            { name: "NBA Team", price: 2120000000, image: "https://images.unsplash.com/photo-1504450758481-7338eba7524a?w=400" }
+        ];
+
+        let balance = 100000000000; // $100 billion
+        let cart = {};
+        let totalSpent = 0;
+
+        function formatMoney(amount) {
+            return '$' + amount.toLocaleString('en-US');
+        }
+
+        function updateBalance() {
+            document.getElementById('balance').textContent = formatMoney(balance);
+            document.getElementById('totalSpent').textContent = formatMoney(totalSpent);
+        }
+
+        function updateReceipt() {
+            const receiptItems = document.getElementById('receiptItems');
+            const receiptTotal = document.getElementById('receiptTotal');
+
+            if (Object.keys(cart).length === 0) {
+                receiptItems.innerHTML = '<div class="empty-receipt">No items purchased yet</div>';
+                receiptTotal.textContent = '$0';
+                return;
+            }
+
+            let html = '';
+            let total = 0;
+
+            for (const [name, data] of Object.entries(cart)) {
+                if (data.quantity > 0) {
+                    const itemTotal = data.price * data.quantity;
+                    total += itemTotal;
+                    html += `
+                        <div class="receipt-item">
+                            <span>${name} x${data.quantity}</span>
+                            <span>${formatMoney(itemTotal)}</span>
+                        </div>
+                    `;
+                }
+            }
+
+            receiptItems.innerHTML = html;
+            receiptTotal.textContent = formatMoney(total);
+        }
+
+        function buyItem(product) {
+            if (balance >= product.price) {
+                balance -= product.price;
+                totalSpent += product.price;
+
+                if (!cart[product.name]) {
+                    cart[product.name] = {
+                        price: product.price,
+                        quantity: 0
+                    };
+                }
+                cart[product.name].quantity++;
+
+                updateBalance();
+                updateReceipt();
+                updateProductCard(product.name);
+            }
+        }
+
+        function sellItem(product) {
+            if (cart[product.name] && cart[product.name].quantity > 0) {
+                balance += product.price;
+                totalSpent -= product.price;
+                cart[product.name].quantity--;
+
+                if (cart[product.name].quantity === 0) {
+                    delete cart[product.name];
+                }
+
+                updateBalance();
+                updateReceipt();
+                updateProductCard(product.name);
+            }
+        }
+
+        function updateProductCard(productName) {
+            const quantity = cart[productName] ? cart[productName].quantity : 0;
+            const quantityElement = document.getElementById(`quantity-${productName.replace(/\s+/g, '-')}`);
+            if (quantityElement) {
+                quantityElement.textContent = quantity;
+            }
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid');
+            
+            products.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                
+                const productId = product.name.replace(/\s+/g, '-');
+                
+                card.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}" class="product-image" onerror="this.src='https://via.placeholder.com/400x300?text=${product.name}'">
+                    <div class="product-name">${product.name}</div>
+                    <div class="product-price">${formatMoney(product.price)}</div>
+                    <div class="controls">
+                        <button class="btn" onclick='sellItem(${JSON.stringify(product)})'>Sell</button>
+                        <div class="quantity" id="quantity-${productId}">0</div>
+                        <button class="btn" onclick='buyItem(${JSON.stringify(product)})'>Buy</button>
+                    </div>
+                    <div class="total-spent">${formatMoney(0)}</div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        // Initialize the page
+        renderProducts();
+        updateBalance();
+        updateReceipt();
+    </script>
+</body>
+</html>
